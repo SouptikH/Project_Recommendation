@@ -49,42 +49,62 @@ app.run("localhost",9000)
 
 
 
-# {
-#     User:{
-#         id:"1",
-#         name:"Souptik",
-#         professional_interest:[
-#             "Web Development",
-#             "Natural Language Processing",
-#             "Machine Learning",
-#         ]
-#     },
-#     Projects:[
-#         {
-#             proj_id: 1,
-#             title:"Building an E-Commerce Website",
-#             description:"The Online Marketplace Platform project aims to create a comprehensive online marketplace where users can buy and sell various products and services in a secure and user-friendly environment. The platform will provide a convenient marketplace for both individual sellers and businesses to reach a wide audience of potential customers.",
-#             tags:[
-#                 "Web Development"
-#             ]
-#         },
-#         { 
-#             proj_id: 2,
-#             title:"AI Chatbot",
-#             description:"This project focuses on developing an advanced conversational AI chatbot capable of engaging users in natural language conversations and providing helpful responses and assistance. The chatbot will leverage artificial intelligence and natural language processing techniques to understand user queries, generate appropriate responses, and offer personalized assistance across various domains.",
-#             tags:[
-#                 "Deep Learning",
-#                 "Natural Language Processing"
-#             ]
-#         },
-#         { 
-#             proj_id: 3,
-#             title:"Renewable Energy Research Project",
-#             description:"Conduct research on renewable energy sources such as solar, wind, and hydroelectric power. Analyze the feasibility and potential benefits of implementing renewable energy solutions in various industries"),
-#             tags:[
-#                 "Renewable Energy",
-#                 "Survey"
-#             ]
-#         },
-#     ]
-# }
+"""
+SAMPLE REQUEST
+
+{
+    "User":{
+        "id":"1",
+        "name":"Souptik",
+        "professional_interest":[
+            "Web Development",
+            "Natural Language Processing",
+            "Machine Learning"
+        ]
+    },
+    "Projects":[
+        {
+            "proj_id": 1,
+            "title":"Building an E-Commerce Website",
+            "description":"The Online Marketplace Platform project aims to create a comprehensive online marketplace where users can buy and sell various products and services in a secure and user-friendly environment. The platform will provide a convenient marketplace for both individual sellers and businesses to reach a wide audience of potential customers.",
+            "tags":[
+                {
+                    "name":"Web Development",
+                    "id":1
+                }
+            ]
+        },
+        { 
+            "proj_id": 2,
+            "title":"AI Chatbot",
+            "description":"This project focuses on developing an advanced conversational AI chatbot capable of engaging users in natural language conversations and providing helpful responses and assistance. The chatbot will leverage artificial intelligence and natural language processing techniques to understand user queries, generate appropriate responses, and offer personalized assistance across various domains.",
+            "tags":[
+                {
+                    "name":"Deep Learning",
+                    "id":2
+                },
+                {
+                    "name":"Natural Language Processing",
+                    "id":3
+                }
+            ]
+        },
+        { 
+            "proj_id": 3,
+            "title":"Renewable Energy Research Project",
+            "description":"Conduct research on renewable energy sources such as solar, wind, and hydroelectric power. Analyze the feasibility and potential benefits of implementing renewable energy solutions in various industries",
+            "tags":[
+                {
+                    "name":"Renewable Energy",
+                    "id":4
+                },
+                {
+                    "name":"Survey",
+                    "id":5
+                }
+            ]
+        }
+    ]
+}
+
+"""
