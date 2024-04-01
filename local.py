@@ -59,21 +59,15 @@ def calculate_similarity(text1,text2):
 # Compute similarity score for given user with project database 
 # Output ordered list of project id and similarity score
 
-def order_by_similarity_score(user_id):
-
-    for users in schema.User_Db:
-        if users.id == user_id:
-            user = users
-        else:
-            return("User Not Found")
-
+# def order_by_similarity_score(user_id):
+def order_by_similarity_score(user,projects):
 
     interests = user.professional_interest
     skills = user.professional_skills
 
     project_similarity = []
 
-    for project in schema.Project_Db:
+    for project in projects:
         project_title = project.title
         project_description = project.description
         project_tags = project.tags
@@ -111,31 +105,31 @@ def order_by_similarity_score(user_id):
 
 
 
+if __name__=="__main__":
+
+  user1 = schema.User(1,"Souptik")
+  user1.add_interest("Web Development")
+  user1.add_interest("Natural Language Processing")
+  user1.add_interest("Machine Learning")
 
 
-user1 = schema.User(1,"Souptik")
-user1.add_interest("Web Development")
-user1.add_interest("Natural Language Processing")
-user1.add_interest("Machine Learning")
+  project1 = schema.Project(1,"Building an E-Commerce Website","The Online Marketplace Platform project aims to create a comprehensive online marketplace where users can buy and sell various products and services in a secure and user-friendly environment. The platform will provide a convenient marketplace for both individual sellers and businesses to reach a wide audience of potential customers.")
+  project1.add_tags("Web Development")
+  project2 = schema.Project(2,"AI Chatbot","This project focuses on developing an advanced conversational AI chatbot capable of engaging users in natural language conversations and providing helpful responses and assistance. The chatbot will leverage artificial intelligence and natural language processing techniques to understand user queries, generate appropriate responses, and offer personalized assistance across various domains." )
+  project2.add_tags("Deep Learning")
+  project2.add_tags("Natural Language Processing")
+  project3 = schema.Project(3,"Renewable Energy Research Project","Conduct research on renewable energy sources such as solar, wind, and hydroelectric power. Analyze the feasibility and potential benefits of implementing renewable energy solutions in various industries")
+  project3.add_tags("Renewable Energy")
+  project3.add_tags("Survey")
 
-
-project1 = schema.Project(1,"Building an E-Commerce Website","The Online Marketplace Platform project aims to create a comprehensive online marketplace where users can buy and sell various products and services in a secure and user-friendly environment. The platform will provide a convenient marketplace for both individual sellers and businesses to reach a wide audience of potential customers.")
-project1.add_tags("Web Development")
-project2 = schema.Project(2,"AI Chatbot","This project focuses on developing an advanced conversational AI chatbot capable of engaging users in natural language conversations and providing helpful responses and assistance. The chatbot will leverage artificial intelligence and natural language processing techniques to understand user queries, generate appropriate responses, and offer personalized assistance across various domains." )
-project2.add_tags("Deep Learning")
-project2.add_tags("Natural Language Processing")
-project3 = schema.Project(3,"Renewable Energy Research Project","Conduct research on renewable energy sources such as solar, wind, and hydroelectric power. Analyze the feasibility and potential benefits of implementing renewable energy solutions in various industries")
-project3.add_tags("Renewable Energy")
-project3.add_tags("Survey")
-
-user_id = 1
-project_similarity = order_by_similarity_score(user_id)
-if project_similarity:
-    print("Project IDs and their respective similarity scores:")
-    for project in project_similarity:
-        print(f"Project ID: {project['id']}, Similarity Score: {project['similarity']}")
-else:
-    print("User profile not found or no professional interests.")
+  user_id = 1
+  project_similarity = order_by_similarity_score(user_id)
+  if project_similarity:
+      print("Project IDs and their respective similarity scores:")
+      for project in project_similarity:
+          print(f"Project ID: {project['id']}, Similarity Score: {project['similarity']}")
+  else:
+      print("User profile not found or no professional interests.")
 
 
 
