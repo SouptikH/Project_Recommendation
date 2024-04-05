@@ -63,6 +63,9 @@ def calculate_similarity(text1,text2):
 def order_by_similarity_score(user,projects):
 
     interests = user.professional_interest
+    
+    if(len(interests)==0):
+        return [{"id": p.proj_id, "similarity": 0} for p in projects]
     skills = user.professional_skills
 
     project_similarity = []
@@ -95,7 +98,10 @@ def order_by_similarity_score(user,projects):
             intt_sum = intt_sum + intt_sim
             count = count + 1
 
-        tag_sim = intt_sum/count #similarity between tags and user interest
+        if(count!=0):
+            tag_sim = intt_sum/count #similarity between tags and user interest
+        else:
+            tag_sim = 0
 
         similarity_score = (0.32*t_sim + 0.30*d_sim + 0.38*tag_sim)*100
         project_similarity.append({"id": project.proj_id, "similarity": similarity_score})        

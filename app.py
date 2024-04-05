@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request
 from local import order_by_similarity_score
 from schema import User,Project
+from VectorDb.Recommendation import api as recommendationApi
+
 
 app = Flask("Projcet_Recommendation")
 
@@ -18,23 +20,18 @@ def sort_projects_by_score(projectList,idScoreList):
   
   return newProjectList
 
-@app.route('/user/projects',methods=['POST'])
+@app.route('/recommendation',methods=['POST'])
 def get_sorted_proj_ids():
   full_data=request.get_json()
   
   try:
-    user=User.get_User_from_json(full_data['User'])
-    projects=Project.get_Project_from_json(full_data['Projects'])
-    # print(user,projects)
-    # ordered_id_sim=[
-    #   {"id": 1, "similarity": 0},
-    #   {"id": 2, "similarity": 0.5},
-    #   {"id": 3, "similarity": 1}
-    # ]
-    ordered_id_sim=order_by_similarity_score(user,projects)
-    sorted_projects=sort_projects_by_score(full_data['Projects'],ordered_id_sim)
-
-    return jsonify(sorted_projects)
+    userId = full_data['user_id']
+    projectIds = full_data['project_ids']
+    size = 5
+    
+    recommendedProjectIds = recommendationApi.getRecommendationForUser(userId,projectIds,size)
+    return jsonify(recommendedProjectIds)
+      
 
   except Exception as e:
     return jsonify({
@@ -42,9 +39,30 @@ def get_sorted_proj_ids():
         "args":e.args,
       }
     })
-  
 
-app.run("localhost",9000)
+@app.route('/search',methods=['POST'])
+def get_search_proj_ids():
+    full_data = request.get_json()
+    
+    try:
+        searchQuery = full_data['search']
+        projectIds = full_data['project_ids']
+        size = 2
+        searchProjects = recommendationApi.getSearched(searchQuery,projectIds,size)
+        print(searchProjects)
+        return jsonify(searchProjects)
+    
+    except Exception as e:
+        return jsonify({
+            "error_message":{
+                "args":e.args,
+            }
+        })
+        
+    
+
+def runApp():
+    app.run(port=9000)
 
 
 
