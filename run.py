@@ -27,5 +27,8 @@ if  __name__ == "__main__":
             
         print("All processes terminated")
         exit(0)
+    
+    # api.deleteAllRecords(projectMapping.projectIndexName)
+    # print(api.getAllRecords(projectMapping.projectIndexName))
     # print(recommendationApi.getRecommendationForUser(1,[1,2]))
     # print(api.getAllRecords(projectMapping.projectIndexName))

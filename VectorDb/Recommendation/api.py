@@ -12,18 +12,18 @@ from VectorDb.Utils import vector
 
 def getRecommendationForUser(userId, projectIds, size=5):
     user = userQuery.getById(userId)
-    print(user)
     if user is None or len(user) == 0:
         return projectIds
 
     userVector = user["interests_feature"]
-
+    print("Here")
     output = projectQuery.queryByVectorWithProjectIds(
         projectQuery.projectIndexName, userVector, projectIds, size=size
     )
+    print("Here1")
     
     # print(output)
-    
+    print(output)
     return [x["_source"]['id'] for x in output]
 
 def getSearched(search,projectIds,size=2):

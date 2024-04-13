@@ -18,28 +18,32 @@ def callback(inputJson):
     elif inputJson['type']=='project':
         projectId = inputJson['id']
         
-        embedding = []
-        key = ""
+        dict = {}
         
         if 'tags' in inputJson['data']:
             embedding = getEmbedding(inputJson['data']['tags'])
             key = 'tags_feature'
-        
-        elif 'title' in inputJson['data']:
+
+            dict[key] = embedding
+            
+        if 'title' in inputJson['data']:
             embedding = getEmbedding(inputJson['data']['title'])
             key = 'title_feature'
+            
+            dict[key] = embedding
         
-        elif 'description' in inputJson['data']:
+        if 'description' in inputJson['data']:
             embedding = getEmbedding(inputJson['data']['description'])
             key = 'description_feature'
             
-        projectInsert.insertData({
-            "id": projectId,
-            key: embedding
-        })
+            dict[key] = embedding
+        
+        dict['id'] = projectId
+        print(dict)
+        projectInsert.insertData(dict)
         
         print("Project Inserted")
         
         
 def runJobProcessor():
-    sqs.loop(callback = callback,timeInMinutes=1,delete=True)
+    sqs.loop(callback = callback,timeInMinutes=0.1,delete=True)

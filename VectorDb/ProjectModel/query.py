@@ -46,7 +46,7 @@ def queryByVectorWithProjectIds(indexName, vector, projectIds, size=5):
                         "script_score": {
                             "query": {"match_all": {}},
                             "script": {
-                                "source": "0.10*cosineSimilarity(params.query_vector, doc['title_feature']) + 0.30*cosineSimilarity(params.query_vector, doc['description_feature']) + 0.60*cosineSimilarity(params.query_vector, doc['tags_feature']) + 3",
+                                "source": "0.10*cosineSimilarity(params.query_vector, 'title_feature') + 0.30*cosineSimilarity(params.query_vector, 'description_feature') + 0.60*cosineSimilarity(params.query_vector, 'tags_feature') + 3",
                                 "params": {"query_vector": vector},
                             },
                         }
@@ -56,4 +56,5 @@ def queryByVectorWithProjectIds(indexName, vector, projectIds, size=5):
         },
     }
     res = api.client.search(index=indexName, body=dataQuery)
+    print(res)
     return getHitsFromResult(res)
