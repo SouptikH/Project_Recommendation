@@ -64,6 +64,8 @@ def get_search_proj_ids():
 def runApp():
     app.run(port=9000)
 
+if __name__ == "__main__":
+    runApp()
 
 
 
