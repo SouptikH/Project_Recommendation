@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request
-from local import order_by_similarity_score
 from schema import User,Project
 from VectorDb.Recommendation import api as recommendationApi
 
@@ -62,7 +61,7 @@ def get_search_proj_ids():
     
 
 def runApp():
-    app.run(port=9000)
+    app.run(port=9000,host='0.0.0.0')
 
 if __name__ == "__main__":
     runApp()
