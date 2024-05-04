@@ -23,15 +23,20 @@ def getRecommendationForUser(userId, projectIds, size=5):
     print("Here1")
     
     # print(output)
-    print(output)
+    # print(output)
     return [(x["_source"]['id'],x["_score"]) for x in output]
 
 def getSearched(search,projectIds,size=2):
     searchVector = vector.getEmbedding(search)
 
-    output = projectQuery.queryByVectorWithProjectIds(
-        projectQuery.projectIndexName, searchVector, projectIds, size=size
+    output = projectQuery.queryByVectorAndTermWithProjectIds(
+        projectQuery.projectIndexName, search, searchVector, projectIds, size=size
     )
+    
+    if(len(output)==0):
+        output = projectQuery.queryByVectorWithProjectIds(
+            projectQuery.projectIndexName, searchVector, projectIds, size=size
+        )
 
     
-    return [x["_source"]['id'] for x in output]
+    return [(x["_source"]['id'],x["_score"]) for x in output]

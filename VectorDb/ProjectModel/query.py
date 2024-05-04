@@ -31,6 +31,7 @@ def queryByVector(indexName, vector, size=5):
     return getHitsFromResult(res)
 
 
+
 def queryByVectorWithProjectIds(indexName, vector, projectIds, size=5):
     dataQuery = {
         "size": size,
@@ -58,3 +59,38 @@ def queryByVectorWithProjectIds(indexName, vector, projectIds, size=5):
     res = api.client.search(index=indexName, body=dataQuery)
     print(res)
     return getHitsFromResult(res)
+
+
+def queryByVectorAndTermWithProjectIds(indexName, query, vector, projectIds, size=5):
+    dataQuery = {
+        "size": size,
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "terms": {
+                            "id": projectIds
+                        }
+                    },
+                    {
+                        "script_score": {
+                            "query": {
+                                "multi_match": {
+                                    "query": query,
+                                    "fields": ["title_content", "description_content", "tags_content"],
+                                    "type": "cross_fields"
+                                }
+                            },
+                            "script": {
+                                "source": "0.10*cosineSimilarity(params.query_vector, 'title_feature') + 0.30*cosineSimilarity(params.query_vector, 'description_feature') + 0.60*cosineSimilarity(params.query_vector, 'tags_feature') + 3 + (2 * _score)",
+                                "params": {"query_vector": vector, "query_string": query},
+                            },
+                        }
+                    }
+                ]
+            }
+        },
+    }
+    res = api.client.search(index=indexName, body=dataQuery)
+    return getHitsFromResult(res)
+    

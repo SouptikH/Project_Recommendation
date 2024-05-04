@@ -16,5 +16,14 @@ def insertData(projectData):
         
     if "tags_feature" not in projectData:
         projectData["tags_feature"] = [0.0]*featureDims
+        
+    if "description_content" not in projectData:
+        projectData["description_content"] = ""
+    
+    if "title_content" not in projectData:
+        projectData["title_content"] = ""
+    
+    if "tags_content" not in projectData:
+        projectData["tags_content"] = ""
 
     api.insertRecord(projectIndexName, projectData)

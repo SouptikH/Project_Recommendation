@@ -12,6 +12,15 @@ def getRecordsFromHits(hits):
         records.append(hit["_source"])
     return records
 
+
+# def transferData(indexName):
+#     records = getAllRecords(indexName,client=newclient,size=1000)
+    
+#     records = getRecordsFromHits(records["hits"]["hits"])
+#     # print(records)
+#     # records = [record["_source"] for record in records]
+#     bulkInsert(indexName,records,client=client)
+
 # def transferData():
 #     #create indices in new client
 #     newesclient.indices.delete(index=appMapping.appIndexName, ignore=[400, 404])
@@ -46,6 +55,12 @@ def createIndex(indexName):
     res=client.indices.create(index=indexName)
     print(res)
     return res
+
+
+def transferFromIndex(index1,index2):
+    records = getAllRecords(index1,client=client,size=1000)
+    records = getRecordsFromHits(records["hits"]["hits"])
+    bulkInsert(index2,records,client=client)
 
 def getRecord(indexName,id=id):
     try:
@@ -84,7 +99,7 @@ def getMapping(indexName):
     res = client.indices.get_mapping(index = indexName)
     return res
 
-def getAllRecords(indexName, size=1):
+def getAllRecords(indexName, size=1,client=client):
     dataQuery={
       "size":size,
         "query" : {
@@ -121,7 +136,7 @@ def updateRecordByField(indexName, field, value, record):
     return client.update_by_query(index=indexName, body={"query": {"match": {field: value}}, "script": {"source": "ctx._source = params", "params": record}})
 
 #data is a json object
-def bulkInsert(indexName, data, saveSize=50):
+def bulkInsert(indexName, data, saveSize=50,client=client):
 
     actions = []
 
