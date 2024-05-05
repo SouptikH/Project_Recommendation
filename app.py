@@ -52,6 +52,7 @@ def get_search_proj_ids():
         return jsonify(searchProjects)
     
     except Exception as e:
+        print(e)
         return jsonify({
             "error_message":{
                 "args":e.args,
