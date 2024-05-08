@@ -31,27 +31,38 @@ def queryByVector(indexName, vector, size=5):
     return getHitsFromResult(res)
 
 
-
 def queryByVectorWithProjectIds(indexName, vector, projectIds, size=5):
     dataQuery = {
         "size": size,
         "query": {
             "bool": {
                 "must": [
-                    {
-                        "terms": {
-                            "id": projectIds
-                        }
-                    },
+                    {"terms": {"id": projectIds}},
                     {
                         "script_score": {
                             "query": {"match_all": {}},
                             "script": {
-                                "source": "0.10*cosineSimilarity(params.query_vector, 'title_feature') + 0.30*cosineSimilarity(params.query_vector, 'description_feature') + 0.60*cosineSimilarity(params.query_vector, 'tags_feature') + 3",
+                                "source": """
+                                def title_sim = cosineSimilarity(params.query_vector, 'title_feature');
+                                def description_sim = cosineSimilarity(params.query_vector, 'description_feature');
+                                def tags_sim = cosineSimilarity(params.query_vector, 'tags_feature');
+                                
+                                if (title_sim.isNaN()) {
+                                    title_sim = 0; // Set title_sim to zero if it is NaN
+                                }
+                                if (description_sim.isNaN()) {
+                                    description_sim = 0; // Set description_sim to zero if it is NaN
+                                }
+                                if (tags_sim.isNaN()) {
+                                    tags_sim = 0; // Set tags_sim to zero if it is NaN
+                                }
+                                
+                                return 0.10 * title_sim + 0.30 * description_sim + 0.60 * tags_sim + 3;
+                            """,
                                 "params": {"query_vector": vector},
                             },
                         }
-                    }
+                    },
                 ]
             }
         },
@@ -66,32 +77,50 @@ def queryByVectorAndTermWithProjectIds(indexName, query, vector, projectIds, siz
         "query": {
             "bool": {
                 "must": [
-                    {
-                        "terms": {
-                            "id": projectIds
-                        }
-                    },
+                    {"terms": {"id": projectIds}},
                     {
                         "script_score": {
                             "query": {
                                 "multi_match": {
                                     "query": query,
-                                    "fields": ["title_content", "description_content", "tags_content"],
+                                    "fields": [
+                                        "title_content",
+                                        "description_content",
+                                        "tags_content",
+                                    ],
                                     "type": "best_fields",
                                     "fuzziness": "2",
                                 }
                             },
                             "script": {
-                                "source": "0.10*cosineSimilarity(params.query_vector, 'title_feature') + 0.30*cosineSimilarity(params.query_vector, 'description_feature') + 0.60*cosineSimilarity(params.query_vector, 'tags_feature') + 3 + (2 * _score)",
-                                "params": {"query_vector": vector, "query_string": query},
+                                "source": """
+                                def title_sim = cosineSimilarity(params.query_vector, 'title_feature');
+                                def description_sim = cosineSimilarity(params.query_vector, 'description_feature');
+                                def tags_sim = cosineSimilarity(params.query_vector, 'tags_feature');
+                                
+                                if (title_sim.isNaN()) {
+                                    title_sim = 0; // Set title_sim to zero if it is NaN
+                                }
+                                if (description_sim.isNaN()) {
+                                    description_sim = 0; // Set description_sim to zero if it is NaN
+                                }
+                                if (tags_sim.isNaN()) {
+                                    tags_sim = 0; // Set tags_sim to zero if it is NaN
+                                }
+                                
+                                return 0.10 * title_sim + 0.30 * description_sim + 0.60 * tags_sim + 3 + (2 * _score);
+                            """,
+                                "params": {
+                                    "query_vector": vector,
+                                    "query_string": query,
+                                },
                             },
-                            "min_score": "0.0"
+                            "min_score": "0.0",
                         }
-                    }
+                    },
                 ]
             }
         },
     }
     res = api.client.search(index=indexName, body=dataQuery)
     return getHitsFromResult(res)
-    

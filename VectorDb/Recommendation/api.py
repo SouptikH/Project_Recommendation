@@ -28,7 +28,6 @@ def getRecommendationForUser(userId, projectIds, size=5):
 
 def getSearched(search,projectIds,size=2):
     searchVector = vector.getEmbedding(search)
-
     output = projectQuery.queryByVectorAndTermWithProjectIds(
         projectQuery.projectIndexName, search, searchVector, projectIds, size=size
     )
