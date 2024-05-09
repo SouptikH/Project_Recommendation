@@ -30,6 +30,9 @@ def getSearched(search,projectIds,size=2):
     
     #extract portion in double quotes (if present)
     
+    if(search==""):
+        return [(x,0) for x in projectIds]
+    
     if(search[0]=='"'):
         search = search[1:]
         search = search[:search.find('"')]
