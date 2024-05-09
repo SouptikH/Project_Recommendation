@@ -71,7 +71,7 @@ def queryByVectorWithProjectIds(indexName, vector, projectIds, size=5):
     return getHitsFromResult(res)
 
 
-def queryByVectorAndTermWithProjectIds(indexName, query, vector, projectIds, size=5):
+def queryExactByTermAndProjectIds(indexName, query, projectIds, size=5):
     dataQuery = {
         "size": size,
         "query": {
@@ -88,10 +88,122 @@ def queryByVectorAndTermWithProjectIds(indexName, query, vector, projectIds, siz
                                         "description_content",
                                         "tags_content",
                                     ],
-                                    "type": "best_fields",
-                                    "fuzziness": "2",
+                                    "type": "cross_fields",
                                 }
                             },
+                            "script": {
+                                "source": """
+                                return _score;
+                            """
+                            },
+                        }
+                    },
+                ]
+            }
+        },
+    }
+    
+    res = api.client.search(index=indexName, body=dataQuery)
+    return getHitsFromResult(res)
+
+def queryByVectorAndTermWithProjectIds(indexName, query, vector, projectIds, size=5):
+    # dataQuery = {
+    #     "size": size,
+    #     "query": {
+    #         "bool": {
+    #             "must": [
+    #                 {"terms": {"id": projectIds}},
+    #                 {
+    #                     "script_score": {
+    #                         "query": {
+    #                             "multi_match": {
+    #                                 "query": query,
+    #                                 "fields": [
+    #                                     "title_content",
+    #                                     "description_content",
+    #                                     "tags_content",
+    #                                 ],
+    #                                 "type": "best_fields",
+    #                                 "fuzziness": "2",
+    #                             }
+    #                         },
+    #                         "script": {
+    #                             "source": """
+    #                             def title_sim = cosineSimilarity(params.query_vector, 'title_feature');
+    #                             def description_sim = cosineSimilarity(params.query_vector, 'description_feature');
+    #                             def tags_sim = cosineSimilarity(params.query_vector, 'tags_feature');
+                                
+    #                             if (title_sim.isNaN()) {
+    #                                 title_sim = 0; // Set title_sim to zero if it is NaN
+    #                             }
+    #                             if (description_sim.isNaN()) {
+    #                                 description_sim = 0; // Set description_sim to zero if it is NaN
+    #                             }
+    #                             if (tags_sim.isNaN()) {
+    #                                 tags_sim = 0; // Set tags_sim to zero if it is NaN
+    #                             }
+                                
+    #                             return 0.10 * title_sim + 0.30 * description_sim + 0.60 * tags_sim + 3 + (2 * _score);
+    #                         """,
+    #                             "params": {
+    #                                 "query_vector": vector,
+    #                                 "query_string": query,
+    #                             },
+    #                         },
+    #                         "min_score": "0.0",
+    #                     }
+    #                 },
+    #             ]
+    #         }
+    #     },
+    # }
+    dataQuery = {
+        "size": size,
+        "query": {
+            "function_score": {
+                "query": {
+                    "bool": {
+                        "must": [
+                            {"terms": {"id": projectIds}}
+                        ]
+                    }
+                },
+                "functions": [
+                    {
+                        "filter": {
+                            "match": {
+                                "title_content": {
+                                    "query": query,
+                                    "fuzziness": "1"
+                                }
+                            }
+                        },
+                        "weight": 5  # Boost for the title match
+                    },
+                    {
+                        "filter": {
+                            "match": {
+                                "description_content": {
+                                    "query": query,
+                                    "fuzziness": "1"
+                                }
+                            }
+                        },
+                        "weight": 2  # Boost for the description match
+                    },
+                    {
+                        "filter": {
+                            "match": {
+                                "tags_content": {
+                                    "query": query,
+                                    "fuzziness": "1"
+                                }
+                            }
+                        },
+                        "weight": 1  # Boost for the tags match
+                    },
+                    {
+                        "script_score": {
                             "script": {
                                 "source": """
                                 def title_sim = cosineSimilarity(params.query_vector, 'title_feature');
@@ -108,19 +220,20 @@ def queryByVectorAndTermWithProjectIds(indexName, query, vector, projectIds, siz
                                     tags_sim = 0; // Set tags_sim to zero if it is NaN
                                 }
                                 
-                                return 0.10 * title_sim + 0.30 * description_sim + 0.60 * tags_sim + 3 + (2 * _score);
-                            """,
+                                return 0.10 * title_sim + 0.30 * description_sim + 0.60 * tags_sim + 3;
+                                """,
                                 "params": {
                                     "query_vector": vector,
                                     "query_string": query,
                                 },
-                            },
-                            "min_score": "0.0",
+                            }
                         }
-                    },
-                ]
+                    }
+                ],
+                "score_mode": "sum",  # Aggregate the results by summing up the scores
+                "boost_mode": "replace"  # Replace the original query score with the function score
             }
-        },
+        }
     }
     res = api.client.search(index=indexName, body=dataQuery)
     return getHitsFromResult(res)

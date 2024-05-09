@@ -27,6 +27,19 @@ def getRecommendationForUser(userId, projectIds, size=5):
     return [(x["_source"]['id'],x["_score"]) for x in output]
 
 def getSearched(search,projectIds,size=2):
+    
+    #extract portion in double quotes (if present)
+    
+    if(search[0]=='"'):
+        search = search[1:]
+        search = search[:search.find('"')]
+        print(search)
+        output =  projectQuery.queryExactByTermAndProjectIds(
+            projectQuery.projectIndexName, search, projectIds, size=size
+        )
+        
+        return [(x["_source"]['id'],x["_score"]) for x in output]
+        
     searchVector = vector.getEmbedding(search)
     output = projectQuery.queryByVectorAndTermWithProjectIds(
         projectQuery.projectIndexName, search, searchVector, projectIds, size=size
